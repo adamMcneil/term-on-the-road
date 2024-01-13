@@ -15,19 +15,12 @@ use rocket::{
 };
 use rocket_contrib::{json::Json, serve::StaticFiles};
 use rocket_cors::{AllowedOrigins, CorsOptions};
-use std::collections::HashMap;
 use std::path::PathBuf;
 use structopt::StructOpt;
-use types::{Answer, Game, Guess, Player, PlayerData, Result, PromptData};
+use types::{Answer, Game, PlayerData, Result, };
 
 type Games = Mutex<types::Games>;
 type Questions = Mutex<QuestionLookup>;
-
-// #[get("/")]
-// fn index() -> &'static str {
-//     // TODO: Is there some way to use StaticFiles from up here?
-//     "HTML"
-// }
 
 #[get("/heartbeat")]
 fn heartbeat() -> &'static str {
@@ -70,28 +63,13 @@ fn answer(game_id: String, answer: Json<Answer>, games: State<Games>) -> Result<
     game.answer(answer)
 }
 
-#[post("/game/<game_id>/guess", data = "<guess>")]
-fn guess(
-    game_id: String,
-    guess: Json<Guess>,
-    games: State<Games>,
-    questions: State<Questions>,
-) -> Result<()> {
-    let mut games = games.lock();
-    let game = games.get(&game_id)?;
-    let guess = guess.into_inner();
-    game.guess(guess)?;
-    game.add_round_if_complete(questions.lock().get());
-    Ok(())
-}
-
-#[delete("/game/<game_id>/exit", data = "<player>")]
-fn exit_game(game_id: String, player: Json<PlayerData>, games: State<Games>) -> Result<()> {
-    let mut games = games.lock();
-    let game = games.get(&game_id)?;
-    let player = player.into_inner();
-    game.remove_player(player.player)
-}
+// #[delete("/game/<game_id>/exit", data = "<player>")]
+// fn exit_game(game_id: String, player: Json<PlayerData>, games: State<Games>) -> Result<()> {
+//     let mut games = games.lock();
+//     let game = games.get(&game_id)?;
+//     let player = player.into_inner();
+//     game.remove_player(player.player)
+// }
 
 #[delete("/game/<game_id>")]
 fn delete_game(game_id: String, games: State<Games>) {
@@ -99,37 +77,37 @@ fn delete_game(game_id: String, games: State<Games>) {
     games.delete(&game_id)
 }
 
-#[get("/game/<game_id>/score")]
-fn get_score(game_id: String, games: State<Games>) -> Result<Json<HashMap<Player, i32>>> {
-    let mut games = games.lock();
-    let game = games.get(&game_id)?.clone();
-    Ok(Json(game.get_score()))
-}
+// #[get("/game/<game_id>/score")]
+// fn get_score(game_id: String, games: State<Games>) -> Result<Json<HashMap<Player, i32>>> {
+//     let mut games = games.lock();
+//     let game = games.get(&game_id)?.clone();
+//     Ok(Json(game.get_score()))
+// }
 
-#[post("/game/<game_id>/change_question")]
-fn change_question(
-    game_id: String,
-    games: State<Games>,
-    questions: State<Questions>,
-) -> Result<()> {
-    let mut games = games.lock();
-    let game = games.get(&game_id)?;
-    game.change_question(questions.lock().get());
-    Ok(())
-}
+// #[post("/game/<game_id>/change_question")]
+// fn change_question(
+//     game_id: String,
+//     games: State<Games>,
+//     questions: State<Questions>,
+// ) -> Result<()> {
+//     let mut games = games.lock();
+//     let game = games.get(&game_id)?;
+//     game.change_question(questions.lock().get());
+//     Ok(())
+// }
 
-#[post("/game/<game_id>/chat_gpt_question", data = "<prompt>")]
-fn chat_gpt_question(
-    game_id: String,
-    prompt: Json<PromptData>,
-    games: State<Games>,
-    questions: State<Questions>,
-) -> Result<()> {
-    let mut games = games.lock();
-    let game = games.get(&game_id)?;
-    game.change_question(questions.lock().get_gpt_question(&prompt.into_inner().prompt));
-    Ok(())
-}
+// #[post("/game/<game_id>/chat_gpt_question", data = "<prompt>")]
+// fn chat_gpt_question(
+//     game_id: String,
+//     prompt: Json<PromptData>,
+//     games: State<Games>,
+//     questions: State<Questions>,
+// ) -> Result<()> {
+//     let mut games = games.lock();
+//     let game = games.get(&game_id)?;
+//     game.change_question(questions.lock().get_gpt_question(&prompt.into_inner().prompt));
+//     Ok(())
+// }
 
 fn rocket(opt: Option<Opt>) -> rocket::Rocket {
     let mut questions = QuestionLookup::default();
@@ -183,12 +161,7 @@ fn rocket(opt: Option<Opt>) -> rocket::Rocket {
                 join_game,
                 game,
                 answer,
-                guess,
-                exit_game,
                 delete_game,
-                get_score,
-                change_question,
-                chat_gpt_question,
             ],
         )
         .manage(Mutex::new(questions))

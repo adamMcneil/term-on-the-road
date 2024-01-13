@@ -1,5 +1,6 @@
 mod traits;
 
+use reqwest::header::{OccupiedEntry, VacantEntry};
 use serde::{Deserialize, Serialize};
 use core::str;
 #[cfg(test)]
@@ -8,6 +9,8 @@ use std::{
     collections::{HashMap, HashSet},
     error, fmt,
 };
+
+use crate::Opt;
 
 pub(crate) type Result<T> = std::result::Result<T, Error>;
 pub(crate) type Player = String;
@@ -138,47 +141,91 @@ pub(crate) enum RoundState {
 #[derive(Clone, Deserialize, Serialize)]
 pub(crate) struct Round {
     /// The question for the round
-    question: String,
+    player_one_question: String,
+    player_two_question: String,
     /// The list of answers given, one per player
-    pub(crate) answers: HashSet<Answer>,
-    /// The list of guesses made, one per player
-    pub(crate) guesses: HashSet<Guess>,
+    player_one_answer: Option<String>,
+    player_two_answer: Option<String>,
 }
 
 impl Round {
-    fn new(question: String) -> Self {
+    fn new(player_one_question: String, player_two_question: String) -> Self {
         Round {
-            question,
-            answers: HashSet::new(),
-            guesses: HashSet::new(),
+            player_one_question,
+            player_two_question,
+            player_one_answer: None,
+            player_two_answer: None,
         }
     }
 
-    fn state(&self, players: usize) -> RoundState {
-        if self.answers.is_empty() {
+    fn state(&self) -> RoundState {
+        if self.player_one_answer.is_none() && self.player_two_answer.is_none() {
             RoundState::Start
-        } else if self.answers.len() < players {
-            RoundState::CollectingAnswers
-        } else if self.guesses.len() < players {
-            RoundState::CollectingGuesses
-        } else if self.answers.len() == players && self.guesses.len() == players {
+        } else if self.player_one_answer.is_some() && self.player_two_answer.is_some() {
             RoundState::Complete
         } else {
-            panic!("Round in unknown state")
+            RoundState::CollectingAnswers
         }
     }
 
-    fn change_question(&mut self, new_question: String) -> () {
-        self.question = new_question;
+    // fn change_question(&mut self, new_question: String) -> () {
+    //     self.question = new_question;
+    // }
+}
+
+#[derive(Clone, Default, Deserialize, Serialize)]
+pub(crate) struct Board {
+    pub(crate) board: HashMap<char, i32>,
+    pub(crate) player_one_captured: HashSet<char>,
+    pub(crate) player_two_captured: HashSet<char>,
+}
+
+impl Board {
+    pub(crate) fn move_board(&mut self, player_one_answer: String, player_two_answer: String) -> () {
+        for letter in player_one_answer.chars() {
+            match self.board.entry(letter) {
+                std::collections::hash_map::Entry::Occupied(mut entry) => {
+                    if self.board.contains_key(&letter) {
+                        entry.insert(entry.get() + 1);
+                    }
+                },
+                std::collections::hash_map::Entry::Vacant(_) => (),
+            }
+        } 
+
+        for letter in player_two_answer.chars() {
+            match self.board.entry(letter) {
+                std::collections::hash_map::Entry::Occupied(mut entry) => {
+                    if self.board.contains_key(&letter) {
+                        entry.insert(entry.get() - 1);
+                    }
+                },
+                std::collections::hash_map::Entry::Vacant(_) => (),
+            }
+        }
+
+        for (key, value) in self.board {
+            if value > 3 {
+                self.player_one_captured.insert(key);
+                self.board.remove(&key);
+            } else if value < -3 {
+                self.player_two_captured.insert(key);
+                self.board.remove(&key);
+            }
+        }
+
     }
 }
 
 #[derive(Clone, Default, Deserialize, Serialize)]
 pub(crate) struct Game {
     /// The list of players in the game
-    pub(crate) players: HashSet<String>,
+    pub(crate) player_one: Option<String>,
+    pub(crate) player_two: Option<String>,
     /// The list of rounds in the game with the most recent round being the last item in the list
     pub(crate) rounds: Vec<Round>,
+    /// 
+    pub(crate) board: Board,
 }
 
 impl Game {
@@ -187,26 +234,21 @@ impl Game {
         if self.current_round_state() != RoundState::Start {
             return Err(Error::RoundNotInStartState);
         }
-        if self.players.insert(player) {
+        if self.player_one.is_none() {
+            self.player_one = Some(player);
+            Ok(())
+        } else if self.player_two.is_none() {
+            self.player_two = Some(player);
             Ok(())
         } else {
             Err(Error::PlayerConflict)
         }
     }
 
-    pub(crate) fn remove_player(&mut self, player: Player) -> Result<()> {
-        // Only allow removing players at the start of a round
-        if self.current_round_state() != RoundState::Start {
-            return Err(Error::RoundNotInStartState);
-        }
-        self.players.remove(&player);
-        Ok(())
-    }
-
     pub(crate) fn answer(&mut self, answer: Answer) -> Result<()> {
         let player = &answer.player;
         // Confirm the player exists
-        if !self.players.contains(player) {
+        if self.player_one.unwrap().eq(player) || self.player_two.unwrap().eq(player) {
             return Err(Error::PlayerNotFound);
         }
         // Confirm we are collecting answers for the current round
@@ -217,40 +259,23 @@ impl Game {
         }
         // Add or replace the answer
         let round = self.current_round_mut();
-        round.answers.replace(answer);
+        if player.eq(&self.player_one.unwrap())  {
+           round.player_one_answer = Some(answer.answer); 
+        } else {
+            round.player_two_answer = Some(answer.answer);
+        }
         Ok(())
     }
 
-    pub(crate) fn guess(&mut self, guess: Guess) -> Result<()> {
-        let player = &guess.player;
-        // Confirm the player exists
-        if !self.players.contains(player) {
-            return Err(Error::PlayerNotFound);
-        }
-        // Confirm we are adding collecting for the current round
-        if self.current_round_state() != RoundState::CollectingGuesses {
-            return Err(Error::RoundNotInCollectingGuessesState);
-        }
-        // Confirm the guesses are valid
-        for g in &guess.answers {
-            if !self.players.contains(&g.player) {
-                return Err(Error::GuessedPlayerNotFound);
-            }
-        }
-        // Add or replace the guess
-        let round = self.current_round_mut();
-        round.guesses.replace(guess);
-        Ok(())
-    }
-
-    pub(crate) fn add_round_if_complete(&mut self, question: String) {
+    pub(crate) fn add_round_if_complete(&mut self, question_one: String, question_two: String) {
         if self.current_round_state() == RoundState::Complete {
-            self.add_round(question);
+            self.board.move_board(self.current_round().player_one_answer.unwrap(), self.current_round().player_two_answer.unwrap());
+            self.add_round(question_one, question_two);
         }
     }
 
-    fn add_round(&mut self, question: String) {
-        self.rounds.push(Round::new(question));
+    fn add_round(&mut self, question_one: String, question_two: String) {
+        self.rounds.push(Round::new(question_one, question_two));
     }
 
     pub(crate) fn current_round(&self) -> &Round {
@@ -264,35 +289,16 @@ impl Game {
     }
 
     fn current_round_state(&self) -> RoundState {
-        let players = self.players.len();
         let round = self.current_round();
-        round.state(players)
+        round.state()
     }
 
-    pub fn get_score(&self) -> HashMap<String, i32> {
-        let mut scores = HashMap::new();
-        let game = self.clone();
-        for round in game.rounds {
-            for guess in round.guesses {
-                for answer in guess.answers {
-                    let score = scores.entry(guess.player.clone()).or_insert(0);
-                    if round.answers.contains(&answer) {
-                        *score += 1;
-                    } else {
-                        *score -= 1;
-                    }
-                }
-            }
-        }
-        scores
-    }
-
-    pub fn change_question(&mut self, new_question: String) -> () {
-        self.rounds
-            .last_mut()
-            .unwrap()
-            .change_question(new_question);
-    }
+    // pub fn change_question(&mut self, new_question: String) -> () {
+    //     self.rounds
+    //         .last_mut()
+    //         .unwrap()
+    //         .change_question(new_question);
+    // }
 }
 
 #[derive(Default)]
@@ -310,7 +316,7 @@ impl Games {
             Err(Error::GameConflict)
         } else {
             let mut game = Game::default();
-            game.add_round(initial_question);
+            game.add_round(initial_question, initial_question);
             game.add_player(initial_player)?;
             self.0.insert(game_id, game);
             Ok(())
