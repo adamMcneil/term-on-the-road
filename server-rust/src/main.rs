@@ -36,7 +36,7 @@ fn create_game(
 ) -> Result<()> {
     let mut games = games.lock();
     let player = player.into_inner();
-    games.create(game_id, player.player, questions.lock().get())
+    games.create(game_id, player.player, "question 1".to_string(), "question 2".to_string())
 }
 
 #[post("/game/<game_id>", data = "<player>")]

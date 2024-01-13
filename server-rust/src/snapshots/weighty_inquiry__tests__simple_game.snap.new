@@ -1,0 +1,60 @@
+---
+source: src/tests.rs
+assertion_line: 57
+expression: game
+---
+Game {
+    player_one: Some(
+        "p1",
+    ),
+    player_two: Some(
+        "p2",
+    ),
+    rounds: [
+        Round {
+            player_one_question: "question 1",
+            player_two_question: "question 2",
+            player_one_answer: Some(
+                "sssss",
+            ),
+            player_two_answer: Some(
+                "test",
+            ),
+        },
+        Round {
+            player_one_question: "question_one",
+            player_two_question: "question_two",
+            player_one_answer: None,
+            player_two_answer: None,
+        },
+    ],
+    board: Board {
+        board: {
+            'b': 0,
+            'c': 0,
+            'd': 0,
+            'f': 0,
+            'g': 0,
+            'h': 0,
+            'j': 0,
+            'k': 0,
+            'l': 0,
+            'm': 0,
+            'n': 0,
+            'p': 0,
+            'q': 0,
+            'r': 0,
+            's': 4,
+            't': -2,
+            'v': 0,
+            'w': 0,
+            'x': 0,
+            'y': 0,
+            'z': 0,
+        },
+        player_one_captured: {
+            's',
+        },
+        player_two_captured: {},
+    },
+}

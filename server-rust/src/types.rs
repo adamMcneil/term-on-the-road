@@ -6,8 +6,8 @@ use core::str;
 #[cfg(test)]
 use std::iter::FromIterator;
 use std::{
-    collections::{HashMap, HashSet},
-    error, fmt,
+    collections::{HashMap, HashSet, BTreeMap, BTreeSet},
+    error, fmt, hash::Hash,
 };
 
 use crate::Opt;
@@ -134,18 +134,17 @@ impl Guess {
 pub(crate) enum RoundState {
     Start,
     CollectingAnswers,
-    CollectingGuesses,
     Complete,
 }
 
-#[derive(Clone, Deserialize, Serialize)]
+#[derive(Clone, Deserialize, Serialize, Debug)]
 pub(crate) struct Round {
     /// The question for the round
     player_one_question: String,
     player_two_question: String,
     /// The list of answers given, one per player
-    player_one_answer: Option<String>,
-    player_two_answer: Option<String>,
+    pub player_one_answer: Option<String>,
+    pub player_two_answer: Option<String>,
 }
 
 impl Round {
@@ -173,51 +172,68 @@ impl Round {
     // }
 }
 
-#[derive(Clone, Default, Deserialize, Serialize)]
+#[derive(Clone, Default, Deserialize, Serialize, Debug)]
 pub(crate) struct Board {
-    pub(crate) board: HashMap<char, i32>,
-    pub(crate) player_one_captured: HashSet<char>,
-    pub(crate) player_two_captured: HashSet<char>,
+    pub(crate) board: BTreeMap<char, i32>,
+    pub(crate) player_one_captured: BTreeSet<char>,
+    pub(crate) player_two_captured: BTreeSet<char>,
+}
+
+fn make_start_map() -> BTreeMap<char, i32> {
+    let mut letter_to_number: BTreeMap<char, i32> = BTreeMap::new();
+    let alphabet = "bcdfghjklmnpqrstvwxyz";
+    for letter in alphabet.chars() {
+        letter_to_number.insert(letter, 0);
+    }
+    letter_to_number
 }
 
 impl Board {
+    pub(crate) fn new() -> Self {
+        Self {
+            board: make_start_map(),
+            player_one_captured: BTreeSet::new(),
+            player_two_captured: BTreeSet::new(),
+        }
+    }
+
     pub(crate) fn move_board(&mut self, player_one_answer: String, player_two_answer: String) -> () {
         for letter in player_one_answer.chars() {
-            match self.board.entry(letter) {
-                std::collections::hash_map::Entry::Occupied(mut entry) => {
-                    if self.board.contains_key(&letter) {
-                        entry.insert(entry.get() + 1);
-                    }
-                },
-                std::collections::hash_map::Entry::Vacant(_) => (),
+            if self.board.contains_key(&letter) {
+                match self.board.entry(letter) {
+                    std::collections::btree_map::Entry::Occupied(mut entry) => {
+                            entry.insert(entry.get() + 1);
+                    },
+                    std::collections::btree_map::Entry::Vacant(_) => (),
+                }
             }
         } 
 
         for letter in player_two_answer.chars() {
-            match self.board.entry(letter) {
-                std::collections::hash_map::Entry::Occupied(mut entry) => {
-                    if self.board.contains_key(&letter) {
-                        entry.insert(entry.get() - 1);
-                    }
-                },
-                std::collections::hash_map::Entry::Vacant(_) => (),
+            if self.board.contains_key(&letter) {
+                match self.board.entry(letter) {
+                    std::collections::btree_map::Entry::Occupied(mut entry) => {
+                            entry.insert(entry.get() - 1);
+                    },
+                    std::collections::btree_map::Entry::Vacant(_) => (),
+                }
             }
         }
 
-        for (key, value) in self.board {
-            if value > 3 {
-                self.player_one_captured.insert(key);
-                self.board.remove(&key);
-            } else if value < -3 {
-                self.player_two_captured.insert(key);
-                self.board.remove(&key);
+        for (key, value) in &self.board {
+            if !self.player_one_captured.contains(key) && !self.player_two_captured.contains(key) {
+                if value > &3 {
+                    self.player_one_captured.insert(*key);
+                } else if value < &-3 {
+                    self.player_two_captured.insert(*key);
+                }
             }
         }
 
     }
 }
 
-#[derive(Clone, Default, Deserialize, Serialize)]
+#[derive(Clone, Default, Deserialize, Serialize, Debug)]
 pub(crate) struct Game {
     /// The list of players in the game
     pub(crate) player_one: Option<String>,
@@ -246,9 +262,16 @@ impl Game {
     }
 
     pub(crate) fn answer(&mut self, answer: Answer) -> Result<()> {
+        println!("we are in answer");
         let player = &answer.player;
         // Confirm the player exists
-        if self.player_one.unwrap().eq(player) || self.player_two.unwrap().eq(player) {
+        let (player_one, player_two) = match (self.player_one.clone(), self.player_two.clone()) {
+            (Some(player_one), Some(player_two)) => (player_one, player_two),
+            _ => {
+                return Err(Error::PlayerNotFound);
+            }
+        };
+        if &player_one != player && &player_two != player {
             return Err(Error::PlayerNotFound);
         }
         // Confirm we are collecting answers for the current round
@@ -257,25 +280,36 @@ impl Game {
         {
             return Err(Error::RoundNotInCollectingAnswersState);
         }
+
+        let current_round = self.current_round_mut();
         // Add or replace the answer
-        let round = self.current_round_mut();
-        if player.eq(&self.player_one.unwrap())  {
-           round.player_one_answer = Some(answer.answer); 
+        if player == &player_one  {
+           current_round.player_one_answer = Some(answer.answer); 
         } else {
-            round.player_two_answer = Some(answer.answer);
+            current_round.player_two_answer = Some(answer.answer);
         }
+
+        if current_round.player_one_answer.is_some() && current_round.player_two_answer.is_some() {
+            self.add_round_if_complete("question_one".to_string(), "question_two".to_string());
+        }
+        
         Ok(())
     }
 
     pub(crate) fn add_round_if_complete(&mut self, question_one: String, question_two: String) {
         if self.current_round_state() == RoundState::Complete {
-            self.board.move_board(self.current_round().player_one_answer.unwrap(), self.current_round().player_two_answer.unwrap());
+            self.board.move_board(self.current_round().player_one_answer.as_ref().unwrap().to_string(),self.current_round().player_two_answer.as_ref().unwrap().to_string());
             self.add_round(question_one, question_two);
         }
     }
 
     fn add_round(&mut self, question_one: String, question_two: String) {
         self.rounds.push(Round::new(question_one, question_two));
+    }
+
+    pub(crate) fn previous_round(&self) -> Option<&Round> {
+        let index = self.rounds.len() - 2;
+        self.rounds.get(index)
     }
 
     pub(crate) fn current_round(&self) -> &Round {
@@ -291,6 +325,10 @@ impl Game {
     fn current_round_state(&self) -> RoundState {
         let round = self.current_round();
         round.state()
+    }
+
+    fn init_board(&mut self) -> () {
+        self.board = Board::new();
     }
 
     // pub fn change_question(&mut self, new_question: String) -> () {
@@ -311,13 +349,15 @@ impl Games {
         game_id: String,
         initial_player: Player,
         initial_question: String,
+        initial_question_two: String,
     ) -> Result<()> {
         if self.0.contains_key(&game_id) {
             Err(Error::GameConflict)
         } else {
             let mut game = Game::default();
-            game.add_round(initial_question, initial_question);
+            game.add_round(initial_question, initial_question_two);
             game.add_player(initial_player)?;
+            game.init_board();
             self.0.insert(game_id, game);
             Ok(())
         }
