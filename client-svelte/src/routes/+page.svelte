@@ -3,15 +3,15 @@
 	import Join from '$lib/menus/Join.svelte';
 	import Answer from '$lib/menus/Answer.svelte';
 	import AnswerWait from '$lib/menus/AnswerWait.svelte';
-	import Guess from '$lib/menus/Guess.svelte';
-	import GuessWait from '$lib/menus/GuessWait.svelte';
-	import Results from '$lib/menus/Results.svelte';
+	import { sleep } from '$lib/functions/helper';
 
 	import { deleteGame, deletePlayerFromGame, getGame } from '$lib/functions/requests';
 	import Button from '$lib/Button.svelte';
 	import InputField from '$lib/InputField.svelte';
+	import type { Game } from '$lib/datatypes/game';
 
 	let game_state: string | null;
+	let game: Game;
 
 	let production_url: string = 'https://weight-inquiries.onrender.com/api/v1/game/';
 	let test_url: string = 'http://0.0.0.0:8172/api/v1/game/';
@@ -38,7 +38,7 @@
 				if (!response.ok) {
 					setGameState('join');
 				}
-			}) 
+			});
 		}
 	});
 
@@ -90,24 +90,9 @@
 		/>
 	{:else if game_state == 'answer_wait'}
 		<AnswerWait {setGameState} game_name={localStorage.getItem('game_name')} />
-	{:else if game_state == 'guess'}
-		<Guess
-			{setGameState}
-			name={localStorage.getItem('name')}
-			game_name={localStorage.getItem('game_name')}
-		/>
-	{:else if game_state == 'guess_wait'}
-		<GuessWait {setGameState} game_name={localStorage.getItem('game_name')} />
-	{:else if game_state == 'results'}
-		<Results
-			{setGameState}
-			name={localStorage.getItem('name')}
-			game_name={localStorage.getItem('game_name')}
-		/>
 	{/if}
-	<div style="padding: 50px;">
 
-	</div>
+	<div style="padding: 50px;"></div>
 	{#if game_state == 'answer'}
 		<div>
 			<Button text="Leave Game" onClick={onLeave} />

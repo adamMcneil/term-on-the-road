@@ -1,5 +1,3 @@
-import { Player } from "./player";
-
 export class Answer {
     player: string = "";
     answer: string = "";

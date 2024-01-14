@@ -1,14 +1,16 @@
-import { Player } from "./player";
 import { Round } from "./round";
+import { Board } from "./board";
 
 export class Game {
-    players: Array<Player> = [];
-    rounds: Array<Round> = [];
+    player_one!: String;
+    player_two!: String;
+    rounds!: Array<Round>;
+    board!: Board;
 
-    constructor(players: Array<Player>, rounds: Array<Round>) {
-        this.players = players;
-        this.rounds = rounds;
-    }
+    // constructor(players: Array<Player>, rounds: Array<Round>) {
+    //     this.players = players;
+    //     this.rounds = rounds;
+    // }
 
     // constructor(names: Array<string>, rounds: Array<object>) {
     //     this.players = new Array();
