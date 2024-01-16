@@ -13,7 +13,7 @@
 	let game_state: string | null;
 	let game: Game;
 
-	let production_url: string = 'https://weight-inquiries.onrender.com/api/v1/game/';
+	let production_url: string = 'https://term-on-the-road.onrender.com/api/v1/game/';
 	let test_url: string = 'http://0.0.0.0:8172/api/v1/game/';
 
 	function setGameState(new_state: string) {
