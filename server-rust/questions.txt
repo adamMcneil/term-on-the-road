@@ -4,15 +4,11 @@ Movie Genres
 Ocean Creatures
 Capital Cities
 Kitchen Utensils
-Planets in our Solar System
 Famous Landmarks
 Musical Instruments
-Types of Birds
 Sports Teams
-World Currencies
 Breakfast Foods
 Historical Figures
-Colors of the Rainbow
 Car Brands
 Ice Cream Flavors
 Mythical Creatures
@@ -24,7 +20,6 @@ Cartoon Characters
 Types of Fish
 Board Games
 Shapes
-Types of Desserts
 Famous Paintings
 Insects
 Dog Breeds
@@ -35,66 +30,93 @@ Musical Genres
 Famous Scientists
 Vegetables
 Types of Weather
-Mountain Ranges
-Types of Pasta
-Famous Composers
 Holidays
-Types of Hats
 Types of Dances
 Famous Inventors
 Types of Clouds
 Types of Cheese
 Mythological Gods
 Types of Rocks
-Elements of a Story (e.g., protagonist, climax)
-Shapes
-Famous Singers
+Elements of a Story 
 Parts of a Computer
 Types of Shoes
-Types of Beers
 Types of Shells
 Parts of the Human Body
 Types of Dogs
 TV Shows
-Famous Speeches
-Weather Conditions
-Types of Guitars
 Types of Cookies
-Famous Sculptures
 Types of Bears
-Types of Nuts
 Types of Sports Balls
-Types of Crystals
 Parts of a Flower
-Types of Chairs
-Types of Hats
-Types of Birds of Prey
-Types of Clouds
-Famous Architects
-Types of Fish Tanks
-Types of Teas
-Types of Whales
-Types of Clouds
-Types of Mammals
-Types of Tides
-Types of Pasta Sauce
-Types of Pasta Shapes
-Types of Storms
-Types of Fishermen
-Types of Seasons
-Types of Beards
-Types of Bears
-Types of Stars
-Types of Planets
-Types of Moons
-Types of Galaxies
-Types of Aliens
-Types of Robots
-Types of Time Travel
-Types of Dimensions
-Types of Parallel Universes
-Types of Supernovas
-Types of Black Holes
-Types of Wormholes
-Types of Exoplanets
-Types of Astronauts
+A word that describes your ideal vacation.
+Something you find in a toolbox.
+A word related to space exploration.
+An emotion you might feel on your birthday.
+A word associated with a superhero.
+Something you would find in a science laboratory.
+A word related to winter sports.
+Something you see in a garden.
+A word associated with a detective.
+An ingredient used in baking.
+A word related to time travel.
+Something you might see at a circus.
+A word associated with a beach vacation.
+A word related to a fairy tale.
+Something you find in a haunted house.
+A word associated with a detective.
+An item you would bring to a desert island.
+A word related to a road trip.
+Something you find in a fantasy world.
+A word associated with a spy.
+An emotion you might feel during a thunderstorm.
+Something you find in a spaceship.
+A word related to a summer barbecue.
+An item you would find in a treasure chest.
+Unusual Hobbies
+Mythical Creatures
+Famous Duos
+Scientific Elements
+Architectural Wonders
+Ocean Creatures
+Fantasy Races
+Zodiac Signs
+World Festivals
+Alternative Energy Sources
+Classic Novels
+Martial Arts Styles
+Art Movements
+Musical Genres
+Natural Disasters
+Inventors and Inventions
+Constellations
+Historical Epidemics
+Board Game Mechanics
+Literary Devices
+Quantum Physics Concepts
+Different Types of Jokes
+Architectural Styles
+Cryptocurrencies
+Breakfast Foods
+Types of Trees
+Colors in the Crayola Box
+Cartoon TV Shows
+Types of Pasta
+Famous Authors
+Musical Instruments
+Movie Genres
+Sports Equipment
+Types of Dogs
+Countries in Europe
+Shapes
+Ice Cream Flavors
+Types of Cars
+Kitchen Utensils
+Jobs and Occupations
+Types of Shoes
+Outdoor Activities
+Historical Events
+Types of Fish
+Fruits
+Holidays
+Celebrities
+Types of Sports

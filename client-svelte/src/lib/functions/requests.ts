@@ -40,7 +40,7 @@ export async function postAnswer(game_name: string | null, name: string | null, 
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({
 			player: name,
-			answer: answer
+			answer: answer.toLowerCase()
 		})
 	});
 	return response;

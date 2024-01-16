@@ -194,7 +194,7 @@ impl Board {
 
     pub(crate) fn move_board(&mut self, player_one_answer: String, player_two_answer: String) -> () {
         for letter in player_one_answer.chars() {
-            if self.board.contains_key(&letter) {
+            if self.board.contains_key(&letter) && !self.player_one_captured.contains(&letter) && !self.player_two_captured.contains(&letter) {
                 match self.board.entry(letter) {
                     std::collections::btree_map::Entry::Occupied(mut entry) => {
                             entry.insert(entry.get() + 1);
@@ -205,7 +205,7 @@ impl Board {
         } 
 
         for letter in player_two_answer.chars() {
-            if self.board.contains_key(&letter) {
+            if self.board.contains_key(&letter) && !self.player_one_captured.contains(&letter) && !self.player_two_captured.contains(&letter) {
                 match self.board.entry(letter) {
                     std::collections::btree_map::Entry::Occupied(mut entry) => {
                             entry.insert(entry.get() - 1);

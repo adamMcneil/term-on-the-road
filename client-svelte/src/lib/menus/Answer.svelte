@@ -56,22 +56,22 @@
 	async function startTimer() {
 		time -= 1;
 		if (time < 1) {
-			console.log("here")
 			onTimerEnd();
 		} else if (localStorage.getItem('game_state') == 'answer') {
-			console.log("here")
 			await sleep(1000);
 			startTimer();
 		}
 	}
 
 	function onTimerEnd() {
-		const response: Promise<Response> = postAnswer(game_name, name, answer);
-		response.then((response) => {
-			if (response.ok) {
-				setGameState('answer_wait');
-			}
-		});
+		if (localStorage.getItem('game_state') == 'answer') {
+			const response: Promise<Response> = postAnswer(game_name, name, answer);
+			response.then((response) => {
+				if (response.ok) {
+					setGameState('answer_wait');
+				}
+			});
+		}
 	}
 
 	onMount(() => {
