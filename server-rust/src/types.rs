@@ -222,9 +222,9 @@ impl Board {
 
         for (key, value) in &self.board {
             if !self.player_one_captured.contains(key) && !self.player_two_captured.contains(key) {
-                if value > &3 {
+                if value > &2 {
                     self.player_one_captured.insert(*key);
-                } else if value < &-3 {
+                } else if value < &-2 {
                     self.player_two_captured.insert(*key);
                 }
             }
