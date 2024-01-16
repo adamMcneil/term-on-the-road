@@ -26,7 +26,7 @@
 			if (response.ok) {
 				localStorage.setItem('name', name);
 				localStorage.setItem('game_name', game_name);
-				setGameState('answer');
+				setGameState('waiting_room');
 			} else {
 				if (response.status == 409) {
 					error_message = game_already_exists_error_message;
@@ -50,7 +50,7 @@
 			if (response.ok) {
 				localStorage.setItem('name', name);
 				localStorage.setItem('game_name', game_name);
-				setGameState('answer');
+				setGameState('waiting_room');
 			}
 		});
 	}

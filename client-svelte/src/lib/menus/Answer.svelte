@@ -1,10 +1,7 @@
 <script lang="ts">
 	import Button from '$lib/Button.svelte';
 	import InputField from '$lib/InputField.svelte';
-	import {
-		getGame,
-		postAnswer,
-	} from '$lib/functions/requests';
+	import { getGame, postAnswer } from '$lib/functions/requests';
 	import { onMount } from 'svelte';
 	import { sleep } from '$lib/functions/helper';
 
@@ -55,8 +52,31 @@
 		});
 	}
 
+	let time: number = 30;
+	async function startTimer() {
+		time -= 1;
+		if (time < 1) {
+			console.log("here")
+			onTimerEnd();
+		} else if (localStorage.getItem('game_state') == 'answer') {
+			console.log("here")
+			await sleep(1000);
+			startTimer();
+		}
+	}
+
+	function onTimerEnd() {
+		const response: Promise<Response> = postAnswer(game_name, name, answer);
+		response.then((response) => {
+			if (response.ok) {
+				setGameState('answer_wait');
+			}
+		});
+	}
+
 	onMount(() => {
 		getGameLoop();
+		startTimer();
 	});
 </script>
 
@@ -64,6 +84,7 @@
 	<h2>
 		Round: {round_count}
 	</h2>
+	<div>{time}</div>
 	{#if name == player_one}
 		<div>
 			{player_one_question}

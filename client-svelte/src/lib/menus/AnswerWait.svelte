@@ -22,7 +22,6 @@
 				player_one_question = data.rounds[data.rounds.length - 1].player_one_question;
 				player_two_question = data.rounds[data.rounds.length - 1].player_two_question;
 				round_count = data.rounds.length;
-				console.log(data);
 				if (
 					data.rounds[data.rounds.length - 1].player_one_answer == null &&
 					data.rounds[data.rounds.length - 1].player_two_answer == null

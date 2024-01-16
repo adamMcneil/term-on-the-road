@@ -14,10 +14,6 @@
 	let team_one_captured_letters: Set<String>;
 	let team_two_captured_letters: Set<String>;
 
-	// $: board_map = board.board
-	// $: team_one_captured_letters = board.player_one_captured
-	// $: team_two_captured_letters = board.player_two_captured
-
 	async function readGame() {
 		getGame(localStorage.getItem('game_name'))
 			.then((response) => response.json())
@@ -29,11 +25,6 @@
 				}
 				team_one_captured_letters = new Set([...data.board.player_one_captured]);
 				team_two_captured_letters = new Set([...data.board.player_two_captured]);
-                console.log(data.board)
-				// console.log(Object.entries(data.board.board));
-				// board_map = new Map(Object.entries(data.board.board));
-				// board_map = data.board.board;
-				// console.log(board_map);
 
 				player_one = data.player_one;
 				player_two = data.player_two;

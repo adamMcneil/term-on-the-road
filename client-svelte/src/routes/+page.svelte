@@ -5,6 +5,7 @@
 	import AnswerWait from '$lib/menus/AnswerWait.svelte';
 	import Reveal from '$lib/menus/Reveal.svelte';
 	import Board from '$lib/menus/Board.svelte';
+	import WaitingRoom from '$lib/menus/WaitingRoom.svelte';
 
 	import { deleteGame, deletePlayerFromGame, getGame } from '$lib/functions/requests';
 	import Button from '$lib/Button.svelte';
@@ -83,6 +84,8 @@
 <main>
 	{#if game_state == 'join'}
 		<Join {setGameState} />
+	{:else if game_state == 'waiting_room'}
+		<WaitingRoom {setGameState} />
 	{:else if game_state == 'answer'}
 		<Answer
 			{setGameState}
