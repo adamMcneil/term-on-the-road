@@ -1,22 +1,22 @@
 <script lang="ts">
 	import Button from '$lib/Button.svelte';
 	import InputField from '$lib/InputField.svelte';
-	import { getGame, postAnswer, postChangeQuestion, postChatGptQuestion } from '$lib/functions/requests';
-	import type { Game } from '$lib/datatypes/game';
-	import { onMount } from 'svelte'
+	import {
+		getGame,
+		postAnswer,
+	} from '$lib/functions/requests';
+	import { onMount } from 'svelte';
 	import { sleep } from '$lib/functions/helper';
 
 	export let setGameState: (new_state: string) => void;
 	export let name: string | null;
 	export let game_name: string | null;
 
-
 	let player_one: String;
 	let player_two: String;
 	let player_one_question: String;
 	let player_two_question: String;
 	let round_count: number;
-	
 
 	let answer: string = '';
 	let prompt: string = '';
@@ -35,9 +35,11 @@
 
 	let get_game_interval_ms: number = 1000;
 	async function getGameLoop() {
-		readGame();
-		await sleep(get_game_interval_ms);
-		getGameLoop();
+		if (localStorage.getItem('game_state') == 'answer') {
+			readGame();
+			await sleep(get_game_interval_ms);
+			getGameLoop();
+		}
 	}
 
 	function onSubmitClick() {
@@ -53,33 +55,15 @@
 		});
 	}
 
-	function onChangeQuestion() {
-		const response: Promise<Response> = postChangeQuestion(game_name);
-	}
-
-	function onMrGptQuestion() {
-		if (prompt == '') {
-			return;
-		}
-		const response: Promise<Response> = postChatGptQuestion(game_name, prompt);
-	}
-
 	onMount(() => {
 		getGameLoop();
-	})
-
+	});
 </script>
 
 <main>
-	<div>
-		hello
-	</div>
 	<h2>
 		Round: {round_count}
 	</h2>
-	<!-- <div>
-		<Button text="Change Question" onClick={onChangeQuestion} />
-	</div> -->
 	{#if name == player_one}
 		<div>
 			{player_one_question}
@@ -95,13 +79,6 @@
 	<div>
 		<Button text="Submit" onClick={onSubmitClick} />
 	</div>
-
-	<!-- <div>
-		<InputField bind:value={prompt} text="enter Mr. GPT prompt" />
-	</div>
-	<div>
-		<Button text="Get Mr. GPT question" onClick={onMrGptQuestion} />
-	</div> -->
 </main>
 
 <style>

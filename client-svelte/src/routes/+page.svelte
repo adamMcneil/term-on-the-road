@@ -3,7 +3,7 @@
 	import Join from '$lib/menus/Join.svelte';
 	import Answer from '$lib/menus/Answer.svelte';
 	import AnswerWait from '$lib/menus/AnswerWait.svelte';
-	import { sleep } from '$lib/functions/helper';
+	import Reveal from '$lib/menus/Reveal.svelte';
 
 	import { deleteGame, deletePlayerFromGame, getGame } from '$lib/functions/requests';
 	import Button from '$lib/Button.svelte';
@@ -90,6 +90,8 @@
 		/>
 	{:else if game_state == 'answer_wait'}
 		<AnswerWait {setGameState} game_name={localStorage.getItem('game_name')} />
+	{:else if game_state == 'reveal'}
+		<Reveal {setGameState} game_name={localStorage.getItem('game_name')} />
 	{/if}
 
 	<div style="padding: 50px;"></div>
