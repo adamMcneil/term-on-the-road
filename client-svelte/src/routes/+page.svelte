@@ -7,13 +7,11 @@
 	import Board from '$lib/menus/Board.svelte';
 	import WaitingRoom from '$lib/menus/WaitingRoom.svelte';
 
-	import { deleteGame, deletePlayerFromGame, getGame } from '$lib/functions/requests';
+	import { deleteGame, getGame } from '$lib/functions/requests';
 	import Button from '$lib/Button.svelte';
-	import InputField from '$lib/InputField.svelte';
 	import type { Game } from '$lib/datatypes/game';
 
 	let game_state: string | null;
-	let game: Game;
 
 	let production_url: string = 'https://term-on-the-road.onrender.com/api/v1/game/';
 	let test_url: string = 'http://0.0.0.0:8172/api/v1/game/';
@@ -44,35 +42,6 @@
 		}
 	});
 
-	let player_to_kick: string;
-
-	function onLeave() {
-		if (confirm('Do you really want to leave the game?') == true) {
-			const response: Promise<Response> = deletePlayerFromGame(
-				localStorage.getItem('game_name'),
-				localStorage.getItem('name')
-			);
-			response.then((response) => {
-				if (response.ok) {
-					setGameState('join');
-				} else {
-				}
-			});
-		}
-	}
-
-	function onKick() {
-		if (player_to_kick.length == 0) {
-			return;
-		}
-		if (confirm('Do you really what to kick ' + player_to_kick + '?') == true) {
-			const response: Promise<Response> = deletePlayerFromGame(
-				localStorage.getItem('game_name'),
-				player_to_kick
-			);
-		}
-	}
-
 	function onEndGame() {
 		if (confirm('Do you want to end the game for everybody?')) {
 			const response: Promise<Response> = deleteGame(localStorage.getItem('game_name'));
@@ -102,15 +71,6 @@
 	{/if} 
 
 	<div style="padding: 50px;"></div>
-	{#if game_state == 'answer'}
-		<div>
-			<Button text="Leave Game" onClick={onLeave} />
-		</div>
-		<div>
-			<InputField bind:value={player_to_kick} text="player to kick" />
-			<Button text="Kick" onClick={onKick} />
-		</div>
-	{/if}
 	{#if game_state != 'join'}
 		<div>
 			<Button text="End Game" onClick={onEndGame} />
