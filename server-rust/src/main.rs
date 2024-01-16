@@ -36,7 +36,9 @@ fn create_game(
 ) -> Result<()> {
     let mut games = games.lock();
     let player = player.into_inner();
-    games.create(game_id, player.player, "question 1".to_string(), "question 2".to_string())
+    let x = questions.lock().get();
+    let y = questions.lock().get();
+    games.create(game_id, player.player, x, y)
 }
 
 #[post("/game/<game_id>", data = "<player>")]
@@ -56,11 +58,11 @@ fn game(game_id: String, games: State<Games>) -> Result<Json<Game>> {
 }
 
 #[post("/game/<game_id>/answer", data = "<answer>")]
-fn answer(game_id: String, answer: Json<Answer>, games: State<Games>) -> Result<()> {
+fn answer(game_id: String, answer: Json<Answer>, games: State<Games>, questions: State<Questions>) -> Result<()> {
     let mut games = games.lock();
     let game = games.get(&game_id)?;
     let answer = answer.into_inner();
-    game.answer(answer)
+    game.answer(answer, questions)
 }
 
 // #[delete("/game/<game_id>/exit", data = "<player>")]

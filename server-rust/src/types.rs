@@ -1,6 +1,7 @@
 mod traits;
 
-use reqwest::header::{OccupiedEntry, VacantEntry};
+use parking_lot::Mutex;
+use rocket::State;
 use serde::{Deserialize, Serialize};
 use core::str;
 #[cfg(test)]
@@ -10,11 +11,11 @@ use std::{
     error, fmt, hash::Hash,
 };
 
-use crate::Opt;
+use crate::question_lookup::QuestionLookup;
+
 
 pub(crate) type Result<T> = std::result::Result<T, Error>;
 pub(crate) type Player = String;
-pub(crate) type GameId = String;
 pub(crate) type Prompt = String;
 
 #[derive(Serialize, Debug)]
@@ -25,8 +26,6 @@ pub(crate) enum Error {
     PlayerNotFound,
     RoundNotInStartState,
     RoundNotInCollectingAnswersState,
-    RoundNotInCollectingGuessesState,
-    GuessedPlayerNotFound,
 }
 
 impl fmt::Display for Error {
@@ -40,10 +39,6 @@ impl fmt::Display for Error {
             Self::RoundNotInCollectingAnswersState => {
                 write!(f, "round not in collecting answer state")
             }
-            Self::RoundNotInCollectingGuessesState => {
-                write!(f, "round not in collecting guess state")
-            }
-            Self::GuessedPlayerNotFound => write!(f, "guessed player not found"),
         }
     }
 }
@@ -261,8 +256,7 @@ impl Game {
         }
     }
 
-    pub(crate) fn answer(&mut self, answer: Answer) -> Result<()> {
-        println!("we are in answer");
+    pub(crate) fn answer(&mut self, answer: Answer, questions: State<'_, Mutex<QuestionLookup>>) -> Result<()> {
         let player = &answer.player;
         // Confirm the player exists
         let (player_one, player_two) = match (self.player_one.clone(), self.player_two.clone()) {
@@ -290,7 +284,9 @@ impl Game {
         }
 
         if current_round.player_one_answer.is_some() && current_round.player_two_answer.is_some() {
-            self.add_round_if_complete("question_one".to_string(), "question_two".to_string());
+            let x = questions.lock().get();
+            let y = questions.lock().get();
+            self.add_round_if_complete(x, y);
         }
         
         Ok(())
@@ -307,10 +303,10 @@ impl Game {
         self.rounds.push(Round::new(question_one, question_two));
     }
 
-    pub(crate) fn previous_round(&self) -> Option<&Round> {
-        let index = self.rounds.len() - 2;
-        self.rounds.get(index)
-    }
+    // pub(crate) fn previous_round(&self) -> Option<&Round> {
+    //     let index = self.rounds.len() - 2;
+    //     self.rounds.get(index)
+    // }
 
     pub(crate) fn current_round(&self) -> &Round {
         let index = self.rounds.len() - 1;
