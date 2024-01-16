@@ -24,7 +24,7 @@
 				player_one_question = data.rounds[data.rounds.length - 2].player_one_question;
 				player_two_question = data.rounds[data.rounds.length - 2].player_two_question;
 				player_one_answer = data.rounds[data.rounds.length - 2].player_one_answer;
-				player_two_question = data.rounds[data.rounds.length - 2].player_two_question;
+				player_two_answer = data.rounds[data.rounds.length - 2].player_two_answer;
 				round_count = data.rounds.length;
 			});
 	}
