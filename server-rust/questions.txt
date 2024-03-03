@@ -13,7 +13,6 @@ Car Brands
 Ice Cream Flavors
 Mythical Creatures
 Elements on the Periodic Table
-Zodiac Signs
 Types of Flowers
 Countries in Africa
 Cartoon Characters
@@ -48,38 +47,12 @@ Types of Cookies
 Types of Bears
 Types of Sports Balls
 Parts of a Flower
-A word that describes your ideal vacation.
-Something you find in a toolbox.
-A word related to space exploration.
-An emotion you might feel on your birthday.
-A word associated with a superhero.
-Something you would find in a science laboratory.
-A word related to winter sports.
-Something you see in a garden.
-A word associated with a detective.
-An ingredient used in baking.
-A word related to time travel.
-Something you might see at a circus.
-A word associated with a beach vacation.
-A word related to a fairy tale.
-Something you find in a haunted house.
-A word associated with a detective.
-An item you would bring to a desert island.
-A word related to a road trip.
-Something you find in a fantasy world.
-A word associated with a spy.
-An emotion you might feel during a thunderstorm.
-Something you find in a spaceship.
-A word related to a summer barbecue.
 An item you would find in a treasure chest.
-Unusual Hobbies
+Hobbies
 Mythical Creatures
-Famous Duos
 Scientific Elements
 Architectural Wonders
 Ocean Creatures
-Fantasy Races
-Zodiac Signs
 World Festivals
 Alternative Energy Sources
 Classic Novels
@@ -95,17 +68,11 @@ Literary Devices
 Quantum Physics Concepts
 Different Types of Jokes
 Architectural Styles
-Cryptocurrencies
 Breakfast Foods
-Types of Trees
 Colors in the Crayola Box
 Cartoon TV Shows
 Types of Pasta
-Famous Authors
-Musical Instruments
-Movie Genres
 Sports Equipment
-Types of Dogs
 Countries in Europe
 Shapes
 Ice Cream Flavors
@@ -119,4 +86,3 @@ Types of Fish
 Fruits
 Holidays
 Celebrities
-Types of Sports
